@@ -1,0 +1,16 @@
+# ByteTrack settings for CASTER (used by phase1/tracking/bytetrack_wrapper.py).
+#
+# Ultralytics default bytetrack.yaml is tuned for 30fps pedestrian footage
+# with a 1-second memory. Broadcast football has camera pans, close-ups and
+# constant player overlap, so the defaults birth a new ID whenever a
+# detection dips below confidence for half a second.
+#
+# NOTE: track_buffer is expressed in 30fps-frames. The tracker scales it by
+# (actual_fps / 30), so 60 always means "remember a lost player for ~2 s".
+tracker_type: bytetrack
+track_high_thresh: 0.35    # detections above this can start/continue a track
+track_low_thresh: 0.10     # weaker detections may only rescue existing tracks
+new_track_thresh: 0.45     # a NEW id needs a confident detection (stops ID spam)
+track_buffer: 60           # ~2 s memory before a lost track is dropped
+match_thresh: 0.85         # looser IoU gate: fast pans move boxes a lot
+fuse_score: true

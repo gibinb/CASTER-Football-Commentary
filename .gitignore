@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Secrets / env
+.env
+
+# Virtual environments
+venv/
+.venv/
+
+# OS
+.DS_Store
+
+# large/binary artifacts -- don't commit these
+data/raw/*.mp4
+data/raw/*.mov
+data/raw/*.avi
+data/football/
+data/football_extra_frames/
+data/labels/
+outputs/
+phase1/runs/
+phase1/weights/*.pt
+*.pt
+*.pth
+*.gguf
+*.safetensors
+
+# keep folder structure even though contents are ignored
+!data/raw/.gitkeep
+!phase1/weights/.gitkeep
+
+# misc debug
+test_frame.png
+*.bak

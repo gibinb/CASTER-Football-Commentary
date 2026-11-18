@@ -1,0 +1,79 @@
+{
+  "sport": "football",
+  "k": 5,
+  "requested_k": 5,
+  "n_samples": 1086,
+  "overall_accuracy_mean": 0.42907876379317633,
+  "overall_accuracy_std": 0.035255478606057156,
+  "macro_f1_mean": 0.15239195713748205,
+  "macro_f1_std": 0.060088316891585246,
+  "per_class": {
+    "PASS": {
+      "n": 152,
+      "precision_mean": 0.16666529471283292,
+      "recall_mean": 0.1449462365591398,
+      "f1_mean": 0.15377533478073935
+    },
+    "DRIBBLE": {
+      "n": 153,
+      "precision_mean": 0.19323775309443594,
+      "recall_mean": 0.17591397849462365,
+      "f1_mean": 0.18311126909780304
+    },
+    "TACKLE": {
+      "n": 27,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "f1_mean": 0.0
+    },
+    "SHOT_ON_TARGET": {
+      "n": 52,
+      "precision_mean": 0.12380952380952381,
+      "recall_mean": 0.08,
+      "f1_mean": 0.09705882352941177
+    },
+    "GOAL": {
+      "n": 33,
+      "precision_mean": 0.3,
+      "recall_mean": 0.14285714285714285,
+      "f1_mean": 0.17858585858585857
+    },
+    "FOUL": {
+      "n": 29,
+      "precision_mean": 0.20857142857142857,
+      "recall_mean": 0.13333333333333333,
+      "f1_mean": 0.15349650349650348
+    },
+    "CORNER_KICK": {
+      "n": 8,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "f1_mean": 0.0
+    },
+    "FREE_KICK": {
+      "n": 11,
+      "precision_mean": 0.11666666666666665,
+      "recall_mean": 0.16666666666666666,
+      "f1_mean": 0.13333333333333333
+    },
+    "HEADER": {
+      "n": 27,
+      "precision_mean": 0.0,
+      "recall_mean": 0.0,
+      "f1_mean": 0.0
+    },
+    "OFFSIDE": {
+      "n": 20,
+      "precision_mean": 0.3,
+      "recall_mean": 0.1,
+      "f1_mean": 0.14666666666666667
+    },
+    "NO_EVENT": {
+      "n": 574,
+      "precision_mean": 0.5762191620431654,
+      "recall_mean": 0.6969336384439359,
+      "f1_mean": 0.6302837390219865
+    }
+  },
+  "classes_with_no_data": []
+}

@@ -1,0 +1,17 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    // Proxy API calls to FastAPI backend so CORS is not an issue in production builds
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        ws: true,        // WebSocket proxy — critical for /api/ws/stream
+      },
+    },
+  },
+})

@@ -1,0 +1,67 @@
+version: "3.9"
+
+# CASTER — Full Stack Docker Compose
+#
+# Starts three services:
+#   backend   — Phase 4 FastAPI server (wraps Phase 1+2+3 pipeline)
+#   frontend  — Phase 4 React/Vite dev server
+#   redis     — Optional message queue used by Phase 3's standalone backend
+#
+# Quick start:
+#   cp .env.example .env && nano .env   # add GROQ_API_KEY
+#   docker compose up --build
+#   open http://localhost:5173
+#
+# Without Docker (recommended for development — faster reload):
+#   pip install -r requirements.txt
+#   python phase4/run_phase4.py          # terminal 1
+#   cd phase4/frontend && npm install && npm run dev   # terminal 2
+
+services:
+
+  # ---- Phase 4 FastAPI backend ------------------------------------------ #
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-8b-instant}
+      - LOCAL_GGUF_PATH=${LOCAL_GGUF_PATH:-}
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      # Mount data and outputs so clips and results persist between container restarts
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      # Mount phase1/weights so your trained YOLO models are visible inside
+      - ./phase1/weights:/app/phase1/weights
+      # Mount phase2/saved_models similarly
+      - ./phase2/saved_models:/app/phase2/saved_models
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # ---- Phase 4 React frontend ------------------------------------------- #
+  frontend:
+    build:
+      context: ./phase4/frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      # Tell Vite to proxy /api to the backend service (by Docker service name)
+      - VITE_API_HOST=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ---- Redis (Phase 3 async queue) --------------------------------------- #
+  # Only needed if you run the Phase 3 standalone server separately.
+  # Phase 4's integrated pipeline_runner.py does NOT require Redis.
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

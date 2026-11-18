@@ -1,0 +1,346 @@
+/* ============================================================
+   CASTER — Neo-Brutalist Glassmorphism (iOS Frosted Glass × Maximalism)
+   - Translucent multi-layered frosted glass panels (backdrop-filter: blur(28px))
+   - Bold brutalist structural borders (3px black / ultra-crisp neon outlines)
+   - Maximalist vibrant color contrast (Electric Volt #ccff00, Hot Crimson #ff0055, Cyan #00f0ff, Vivid Purple #7928ca)
+   - Apple-grade typography & fluid geometry with hyper-dense data telemetry
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700;900&display=swap');
+
+:root {
+  /* Apple Glass frosted palettes */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-dark: rgba(18, 20, 29, 0.72);
+  --glass-card: rgba(22, 27, 38, 0.68);
+  --glass-card-subtle: rgba(255, 255, 255, 0.05);
+  
+  /* Brutalist & Maximalist High-Voltage Accents */
+  --volt: #d4ff00;            /* striking neon volt */
+  --crimson: #ff1355;         /* brutalist red/magenta */
+  --cyan: #00f2fe;            /* ios electric cyan */
+  --amber: #ffaa00;           /* striking gold */
+  --violet: #8a2be2;          /* maximalist deep violet */
+  --apple-blue: #0071e3;      /* Apple dynamic blue */
+  
+  /* Text */
+  --text-white: #ffffff;
+  --text-dim: #94a3b8;
+  --text-dark: #0f172a;
+  
+  /* Neo-Brutalist High Impact Borders */
+  --brut-border: 2px solid rgba(255, 255, 255, 0.18);
+  --brut-border-heavy: 3px solid #000000;
+  --brut-glow: 0 0 25px rgba(212, 255, 0, 0.35);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+  
+  /* Typography */
+  --font-display: 'Space Grotesk', -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #08090d;
+  /* Maximalist iOS animated mesh gradient background */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(138, 43, 226, 0.35) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 242, 254, 0.28) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 19, 85, 0.25) 0px, transparent 55%),
+    radial-gradient(at 0% 100%, rgba(212, 255, 0, 0.2) 0px, transparent 50%),
+    linear-gradient(135deg, #090a0f 0%, #111420 100%);
+  background-attachment: fixed;
+  color: var(--text-white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   GLASSMORPHISM + NEO-BRUTALIST CARDS (Striking Apple Blur)
+   ============================================================ */
+.brut-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brut-card:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.brut-card-header {
+  background: rgba(255, 255, 255, 0.08);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.brut-card-body {
+  padding: 14px;
+}
+
+/* ============================================================
+   BRUTALIST + MAXIMALIST HIGH-VOLTAGE BUTTONS
+   ============================================================ */
+button, .btn {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.35);
+}
+
+button:active, .btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Maximalist Volt Button */
+.btn-volt {
+  background: var(--volt) !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  font-weight: 900 !important;
+  box-shadow: 4px 4px 0 #000000, 0 0 20px rgba(212, 255, 0, 0.4) !important;
+}
+
+.btn-volt:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0 #000000, 0 0 30px rgba(212, 255, 0, 0.6) !important;
+}
+
+/* Active style switch */
+button.active, .btn.active {
+  background: var(--volt) !important;
+  color: #050608 !important;
+  border: 2px solid #000000 !important;
+  font-weight: 900 !important;
+  box-shadow: 3px 3px 0 #000000, 0 0 18px rgba(212, 255, 0, 0.5) !important;
+}
+
+/* ============================================================
+   STATUS BADGES (Maximalist Vivid Striking Pills)
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.badge-live {
+  background: var(--crimson);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 20px rgba(255, 19, 85, 0.6);
+  animation: pulse-live 1.2s infinite ease-in-out;
+}
+
+.badge-done {
+  background: #00f5a0;
+  color: #000000;
+  border: 2px solid #000000;
+  font-weight: 900;
+  box-shadow: 0 0 18px rgba(0, 245, 160, 0.5);
+}
+
+.badge-warn {
+  background: var(--amber);
+  color: #000000;
+  border: 2px solid #000000;
+  font-weight: 900;
+}
+
+.badge-error {
+  background: #ff0033;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 20px rgba(255, 0, 51, 0.7);
+}
+
+@keyframes pulse-live {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 19, 85, 0.6); }
+  50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 19, 85, 0.9); }
+}
+
+/* ============================================================
+   APPLE FROSTED UPLOAD HERO (Striking Glass + Maximalist Accents)
+   ============================================================ */
+.upload-zone {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(35px) saturate(200%);
+  -webkit-backdrop-filter: blur(35px) saturate(200%);
+  border: 3px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 24px;
+  padding: 70px 30px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.25);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--volt);
+  background: rgba(212, 255, 0, 0.08);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 255, 0, 0.35);
+}
+
+.upload-zone input[type="file"] {
+  display: none;
+}
+
+/* Floating Glass Icon */
+.glass-icon-box {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 20px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(16px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.upload-zone:hover .glass-icon-box {
+  transform: scale(1.12) rotate(-3deg);
+  background: var(--volt);
+  color: #000;
+  border-color: #000;
+  box-shadow: 0 0 30px rgba(212, 255, 0, 0.6);
+}
+
+/* ============================================================
+   MAXIMALIST TELEMETRY & 12D RADAR
+   ============================================================ */
+.fv-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.fv-cell {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 3px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  transition: all 0.2s ease;
+}
+
+.fv-cell.active {
+  background: rgba(212, 255, 0, 0.18);
+  border: 1.5px solid var(--volt);
+  color: var(--volt);
+  font-weight: 800;
+  box-shadow: 0 0 12px rgba(212, 255, 0, 0.3);
+}
+
+/* ============================================================
+   CONFIDENCE BARS (Hyper-Vivid Maximalist)
+   ============================================================ */
+.conf-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.conf-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.conf-bar-fill.high { background: linear-gradient(90deg, #00f2fe, #d4ff00); box-shadow: 0 0 10px rgba(212, 255, 0, 0.5); }
+.conf-bar-fill.mid  { background: linear-gradient(90deg, #ffaa00, #ff5500); }
+.conf-bar-fill.low  { background: #ff1355; }
+
+/* ============================================================
+   SCROLLBAR & MONO UTILS
+   ============================================================ */
+.mono {
+  font-family: var(--font-mono);
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--volt);
+}

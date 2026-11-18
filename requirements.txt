@@ -1,0 +1,49 @@
+# CASTER -- combined requirements across implemented phases.
+# Phase 4 (frontend) has its own package.json once built; nothing to add here for it.
+
+# --- Phase 1: Vision Foundation ---
+ultralytics>=8.1.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+pytest>=8.0.0
+python-dotenv>=1.2.4
+
+# --- Phase 2: Event Intelligence ---
+xgboost>=2.0.0
+scikit-learn>=1.4.0
+torch>=2.1.0          # only required if using bilstm_clf.py instead of xgboost_clf.py
+
+# --- Phase 3: Commentary Engine ---
+# Core (offline runner + template fallback + tests) needs nothing extra beyond
+# what's already listed above -- everything below is optional, by backend:
+
+# data collection (scraping training data)
+requests>=2.31
+beautifulsoup4>=4.12
+
+# Groq backend (recommended -- free tier, fast, no training needed)
+groq>=0.9
+
+# live streaming backend (Phase 4 connects here)
+fastapi>=0.110
+uvicorn>=0.29
+redis>=5.0
+
+# fine-tuning (only needed if running phase3/finetune/*.py, ideally on Colab)
+peft>=0.10
+bitsandbytes>=0.43
+datasets>=2.19
+accelerate>=0.30
+trl>=0.8
+transformers>=4.40
+
+# --- Phase 4: Integration and Polish (backend) ---
+# FastAPI + WebSocket server (may already be listed above from Phase 3)
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9   # required for FastAPI file upload (UploadFile)
+httpx>=0.27               # used by FastAPI TestClient in phase4 tests
+
+# Phase 4 frontend has its own package.json -- nothing extra needed here.
+# Run:  cd phase4/frontend && npm install && npm run dev
+
