@@ -26,7 +26,8 @@ video clip --> YOLOv8 (ball / player / goalkeeper / referee), optionally via SAH
 ```
 phase1/
   detection/yolo_detector.py       FootballDetector: loads weights/football.pt,
-                                   per-class confidence thresholds (incl. SAHI path)
+                                   per-class confidence thresholds (incl. SAHI path),
+                                   runs on GPU automatically if available
   tracking/bytetrack_wrapper.py    own frame loop + ByteTrack for players;
                                    iter_tracked_frames(), verify_tracking_stability()
   features/feature_extractor.py    the 12-feature vector + two-hit ball validation
@@ -82,16 +83,46 @@ the player class `players`, which the detector renames to `player`). No public
 dataset labels team affiliation, so there is no team separation (documented
 future work: K-means on jersey colours).
 
+**`weights/football.pt` is the finalized production model**: YOLOv8m, trained
+100 full epochs at `imgsz=960`, mAP50 0.863 / mAP50-95 0.573. If you have
+`weights/football2.pt` lying around, don't use it -- it's an interrupted
+2-epoch checkpoint (YOLOv8s, mAP50 0.459) from an earlier training attempt,
+and it also names the player class `players` *and* something else class-wise
+that can silently mismatch the detector's aliasing -- it's a strictly worse,
+superseded file, not an alternative.
+
 Whether weights count as "fine-tuned" is decided from the class names inside
 the checkpoint, not the file name. A stock COCO model (80 classes) is treated
 as the fallback: `person` becomes `player`, `sports ball` becomes `ball`, and
 there is no goalkeeper or referee.
 
+**GPU support.** The detector now picks CUDA automatically when available
+(`DEVICE = os.environ.get("CASTER_DEVICE", "cuda" if torch.cuda.is_available()
+else "cpu")`, passed explicitly into every `.predict()`/`.track()` call and
+into the SAHI `AutoDetectionModel`). Ultralytics does **not** reliably
+auto-select CUDA just because `torch.cuda.is_available()` is true if you don't
+pass `device=` yourself -- this used to silently stay on CPU even with a
+working CUDA install. Measured on an RTX 3050 6GB Laptop GPU: **~74ms/frame**
+at `imgsz=1280` on `football.pt`, a real, meaningful speedup over CPU (this
+project's own CPU benchmark implied ~280-300ms+/frame at the same settings,
+consistent with the earlier-documented ~85s to process 10s of video). Treat
+the 74ms figure as laptop-GPU-specific, not a generic marketing number, if
+you cite it anywhere.
+
+To verify a model is genuinely running on GPU (not just torch-level):
+checking `next(det.model.model.parameters()).device` right after load is
+**not reliable** -- it can report `cpu` even when inference genuinely ran on
+GPU, because Ultralytics' AutoBackend wraps a separate device-specific copy
+at call time. Check GPU memory allocation jumping after a real
+`detect_frame()` call, or `det.model.predictor.device` reporting `cuda:0`
+directly, instead.
+
 Settings (environment variables or `.env`):
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `CASTER_IMGSZ` | `1280` | inference resolution. **Recommend overriding to `1536`**: measured on Final.mp4, 1536 gave 50% validated ball visibility vs 39% at 1280 (the `run_phase1.py` output, after the two-hit ball validator -- not the raw candidate rate `check_tracking.py` reports, which runs higher). Costs ~1.4x more time than 1280. Use 960 for quick, rougher runs. |
+| `CASTER_DEVICE` | `cuda` if available, else `cpu` | inference device. Override to force `cpu` even with a working GPU (e.g. to reproduce the original CPU-only benchmarks), or to pin a specific CUDA device string. |
+| `CASTER_IMGSZ` | `1280` | inference resolution. **Recommend overriding to `1536`**: measured on Final.mp4, 1536 gave 50% validated ball visibility vs 39% at 1280 (the `run_phase1.py` output, after the two-hit ball validator -- not the raw candidate rate `check_tracking.py` reports, which runs higher). Costs ~1.4x more time than 1280 on CPU; the GPU path makes this trade much cheaper to take. Use 960 for quick, rougher runs. |
 | `CASTER_PLAYER_CONF` | `0.30` | minimum confidence for player / goalkeeper |
 | `CASTER_BALL_CONF` | `0.15` | minimum confidence for the ball (deliberately lower: a few-pixel ball never scores like a player) |
 | `CASTER_REFEREE_CONF` | `0.70` | minimum confidence for the referee -- deliberately **higher** than `PLAYER_CONF`. Measured on 9 real referee detections on Final.mp4 (confidence 0.31-0.96): confidence does NOT cleanly separate correct from wrong (0.41 was wrong in one frame, correct in another; 0.65 was wrong while 0.58 was correct). 0.70 is the lowest value that rejected every confirmed-wrong case while keeping the clearest correct ones -- a deliberately conservative, precision-over-recall choice, since `official_signal` is a secondary Phase 2 signal, not load-bearing for ball/player-driven commentary. |
@@ -182,7 +213,10 @@ Phase 1 is done when, on a stretch of live play, with no crashes:
    `outputs/<clip>_feature_windows.json` (windows of shape 30x12).
 
 This project cleared that bar on Final.mp4 (FIFA26-rendered), Semifinal01/02,
-LFinal, sample1, and rm.mp4 (real broadcast footage).
+LFinal, sample1, and rm.mp4 (real broadcast footage). GiBiN confirmed Phase 1
+done, then separately confirmed CUDA/GPU inference working end-to-end on the
+real dev machine (Lenovo LOQ, RTX 3050 6GB Laptop GPU) -- see the GPU support
+note above.
 
 ## Known limitations (measured, not guessed)
 
@@ -193,8 +227,8 @@ LFinal, sample1, and rm.mp4 (real broadcast footage).
 - **Recall is capped by what YOLO offers as a candidate at all.** When the
   real ball is occluded or never detected in a frame, no selection logic can
   recover it -- this needs a better ball detector (more/harder training
-  data) or a multi-hypothesis tracker, both deliberately out of scope for
-  this session's time budget. Documented future work.
+  data) or a multi-hypothesis tracker, both deliberately out of scope so far.
+  Documented future work.
 - **The ball detector performs noticeably better on real broadcast footage
   than on the FIFA26-rendered test clips.** Measured: normal-pass baseline
   detection was 85% on one real-broadcast clip (rm.mp4) vs. 50-65% on the
@@ -215,12 +249,18 @@ LFinal, sample1, and rm.mp4 (real broadcast footage).
   (confirmed by grepping Phase 2/3 code for `track_id`/`nearest_player_id`).
 - **`contact_flag` is a rough hint**: the ball is compared with the bottom of
   each player's whole bounding box, not a real foot/limb detection.
-- **Not real-time**, especially at `CASTER_IMGSZ=1536` or with
-  `CASTER_USE_SAHI=1`. Plan for upload-and-wait processing.
+- **No team/player identity separation yet** (documented future work: K-means
+  on jersey colours). Scene JSON can never say "his teammate" until this is
+  built -- Phase 1's gap, not Phase 2/3's.
+- **Not real-time on CPU**, especially at `CASTER_IMGSZ=1536` or with
+  `CASTER_USE_SAHI=1`; plan for upload-and-wait processing there. **On a
+  CUDA-capable GPU** (set `CASTER_DEVICE=cuda`, the default when one is
+  detected) per-frame inference drops to roughly 74ms on a laptop RTX 3050 at
+  `imgsz=1280` -- much closer to real-time, though still not validated as a
+  genuinely live/streaming pipeline end-to-end.
 - **`find_live_play.py` does not filter celebration/crowd-reaction cutaway
   montages** (only offside-overlay graphics). A stretch right after a goal
-  may still land on a non-play frame -- found on one test clip; not fixed,
-  given this session's time constraints.
+  may still land on a non-play frame -- found on one test clip; not fixed.
 
 ## Troubleshooting
 
@@ -232,6 +272,8 @@ LFinal, sample1, and rm.mp4 (real broadcast footage).
 | player boxes appear but `official_signal` never fires | referee class rarely clears `CASTER_REFEREE_CONF` (0.70 by design -- see Known limitations), or running on the COCO fallback |
 | `ModuleNotFoundError: config` | run from the project root; `config.py` and `schemas.py` must sit beside the `phase1/` folder |
 | `CASTER_USE_SAHI=1` raises an ImportError | run `pip install sahi` |
+| inference still looks CPU-slow despite a working GPU | don't trust `next(det.model.model.parameters()).device` as a check -- it can say `cpu` even when inference genuinely ran on GPU. Check GPU memory usage during a real `detect_frame()` call, or confirm `CASTER_DEVICE`/`torch.cuda.is_available()` directly |
+| you have both `football.pt` and `football2.pt` in `weights/` | use `football.pt` only -- `football2.pt` is a superseded, far weaker interrupted checkpoint, not an alternative |
 
 ## What changed from the cricket + football version
 
@@ -258,3 +300,20 @@ same class of problem on the referee class (0.70 floor, evidence-based) ->
 discovered real broadcast footage detects substantially better than the
 FIFA26-rendered test clips. Every step above was verified against real
 frames before being kept, not just unit-tested.
+
+## What changed in the hardware / GPU session
+
+The project was CPU-only through every fix above. Switched to a CUDA-capable
+dev machine (Lenovo LOQ, RTX 3050 6GB Laptop GPU): installed `torch==2.6.0+cu124`
+(the `cu121` wheel index had no match for the current torch version; `cu124`
+did) in the project's `venv`, confirmed `ultralytics`/`accelerate`/`peft`/
+`bitsandbytes` stayed compatible with no reinstalls needed. Found the real
+root cause of inference staying on CPU despite a working CUDA install
+(Ultralytics does not auto-select CUDA without an explicit `device=` argument
+on `.predict()`/`.track()`), fixed it, and verified the fix with GPU memory
+allocation and `det.model.predictor.device` -- NOT with
+`next(det.model.model.parameters()).device`, which is not a reliable check
+here. Benchmarked ~74ms/frame at `imgsz=1280` on `football.pt`. Also deleted
+two now-redundant artifacts found on the same machine: an unused root-level
+`yolov8n.pt` (only ever an emergency fallback, never actually reached) and a
+stale duplicate `.venv` folder left over from before the switch to `venv`.
